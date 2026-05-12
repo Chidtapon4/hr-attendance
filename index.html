@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ระบบลงเวลา</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="screen-loading" class="screen active">
+    <div class="spinner"></div>
+    <p>กำลังโหลด...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" class="screen">
+    <div class="icon">⚠️</div>
+    <h2 id="error-title">เกิดข้อผิดพลาด</h2>
+    <p id="error-msg"></p>
+    <button class="btn btn-secondary" onclick="location.reload()">ลองใหม่</button>
+  </div>
+
+  <!-- Main — เช็คอิน/เช็คเอาท์ -->
+  <div id="screen-main" class="screen">
+    <div class="card">
+      <div id="action-icon" class="action-icon">📍</div>
+      <h1 id="action-title">เช็คอิน</h1>
+      <p id="user-name" class="subtitle"></p>
+
+      <div class="info-row">
+        <span class="label">วันที่</span>
+        <span id="display-date" class="value">—</span>
+      </div>
+      <div class="info-row">
+        <span class="label">เวลา</span>
+        <span id="display-time" class="value">—</span>
+      </div>
+
+      <!-- GPS Status -->
+      <div id="gps-status" class="status-box status-waiting">
+        <span id="gps-icon">📡</span>
+        <span id="gps-text">กำลังระบุตำแหน่ง...</span>
+      </div>
+
+      <!-- Photo -->
+      <div class="photo-section">
+        <p class="label">ถ่ายรูปเพื่อยืนยัน</p>
+        <label class="photo-label" for="photo-input">
+          <img id="photo-preview" src="" alt="" style="display:none" />
+          <div id="photo-placeholder">
+            <span>📷</span>
+            <span>แตะเพื่อถ่ายรูป</span>
+          </div>
+        </label>
+        <input id="photo-input" type="file" accept="image/*" capture="user" style="display:none" />
+      </div>
+
+      <button id="submit-btn" class="btn btn-primary" disabled>
+        <span id="submit-label">เช็คอิน</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="screen-success" class="screen">
+    <div class="icon success-icon">✅</div>
+    <h2 id="success-title">เช็คอิน สำเร็จ!</h2>
+    <p id="success-detail"></p>
+    <button class="btn btn-primary" onclick="closeLiff()">ปิด</button>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
