@@ -207,8 +207,9 @@ async function handleSubmit() {
     const json = await res.json();
 
     if (json.status === 'ok') {
+      const branch = json.branch ? `\n🏢 ${json.branch}` : '';
       document.getElementById('success-detail').textContent =
-        `👤 ${state.displayName}\n🕐 ${json.time || ''}\n📅 ${json.date || ''}`;
+        `👤 ${json.name || state.displayName}${branch}\n🕐 ${json.time || ''}\n📅 ${json.date || ''}`;
       showScreen('screen-success');
     } else {
       alert('❌ ' + (json.message || 'เกิดข้อผิดพลาด'));
