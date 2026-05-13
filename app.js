@@ -189,6 +189,7 @@ async function handleSubmit() {
   try {
     const payload = {
       userId:      state.userId,
+      displayName: state.displayName,
       action:      state.action,
       lat:         state.lat,
       lng:         state.lng,
