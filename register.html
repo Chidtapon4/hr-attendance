@@ -201,8 +201,17 @@
     }
 
     function closeLiff() {
-      if (liff.isInClient()) liff.closeWindow();
-      else window.close();
+      try {
+        liff.closeWindow();
+      } catch(e) {}
+      // fallback: ถ้า closeWindow ไม่ทำงาน ให้ปิดหน้าต่างหรือกลับหน้าแรก
+      setTimeout(function() {
+        try { window.close(); } catch(e) {}
+        // ถ้ายังปิดไม่ได้ ให้แสดงข้อความแทน
+        document.querySelector('#screen-success p').textContent =
+          'ส่งคำขอเรียบร้อยแล้ว\nกรุณาปิดหน้าต่างนี้ด้วยตนเอง';
+        document.querySelector('#screen-success .btn').style.display = 'none';
+      }, 300);
     }
 
     window.addEventListener('DOMContentLoaded', init);
