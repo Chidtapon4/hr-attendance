@@ -211,6 +211,19 @@ async function handleSubmit() {
       document.getElementById('success-detail').textContent =
         `👤 ${json.name || state.displayName}${branch}\n🕐 ${json.time || ''}\n📅 ${json.date || ''}`;
       showScreen('screen-success');
+    } else if (json.status === 'not_registered') {
+      // พนักงานยังไม่ได้ลงทะเบียน — ไปหน้า register
+      const regUrl = json.registerUrl || ('https://liff.line.me/' + CONFIG.LIFF_ID + '/register.html');
+      if (confirm('ไม่พบชื่อในระบบ\nกดตกลงเพื่อไปลงทะเบียน')) {
+        if (liff.isInClient()) {
+          liff.openWindow({ url: regUrl, external: false });
+        } else {
+          window.location.href = regUrl;
+        }
+      }
+      btn.disabled = false;
+      btn.querySelector('#submit-label').textContent =
+        state.action === 'checkin' ? 'เช็คอิน' : 'เช็คเอาท์';
     } else {
       alert('❌ ' + (json.message || 'เกิดข้อผิดพลาด'));
       btn.disabled = false;

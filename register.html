@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ลงทะเบียนพนักงาน</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 13px; color: #718096; font-weight: 600; }
+    .form-input {
+      padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 16px; outline: none; transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: #06c755; }
+    .form-input::placeholder { color: #cbd5e0; }
+    input[type="tel"] { -webkit-appearance: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="screen-loading" class="screen active">
+    <div class="spinner"></div>
+    <p>กำลังโหลด...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" class="screen">
+    <div class="icon">⚠️</div>
+    <h2 id="error-title">เกิดข้อผิดพลาด</h2>
+    <p id="error-msg"></p>
+    <button class="btn btn-secondary" onclick="location.reload()">ลองใหม่</button>
+  </div>
+
+  <!-- Already registered -->
+  <div id="screen-already" class="screen">
+    <div class="icon">✅</div>
+    <h2>ลงทะเบียนแล้ว</h2>
+    <p id="already-msg"></p>
+    <button class="btn btn-primary" onclick="closeLiff()">ปิด</button>
+  </div>
+
+  <!-- Form -->
+  <div id="screen-form" class="screen">
+    <div class="card">
+      <div class="action-icon">📋</div>
+      <h1>ลงทะเบียนพนักงาน</h1>
+      <p class="subtitle" id="line-display-name"></p>
+
+      <div class="form-group">
+        <label class="form-label">ชื่อ-นามสกุล</label>
+        <input id="input-name" class="form-input" type="text" placeholder="กรอกชื่อ-นามสกุล" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">เบอร์โทรศัพท์</label>
+        <input id="input-phone" class="form-input" type="tel" placeholder="0xx-xxx-xxxx" />
+      </div>
+
+      <div class="photo-section">
+        <p class="form-label">รูปภาพ (ถ่ายหน้าตรง)</p>
+        <label class="photo-label" for="photo-input">
+          <img id="photo-preview" src="" alt="" style="display:none" />
+          <div id="photo-placeholder">
+            <span>📷</span>
+            <span>แตะเพื่อถ่ายรูป</span>
+          </div>
+        </label>
+        <input id="photo-input" type="file" accept="image/*" capture="user" style="display:none" />
+      </div>
+
+      <button id="submit-btn" class="btn btn-primary" disabled>
+        <span id="submit-label">ส่งคำขอลงทะเบียน</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="screen-success" class="screen">
+    <div class="icon">⏳</div>
+    <h2>ส่งคำขอแล้ว!</h2>
+    <p>รอ HR ตรวจสอบและอนุมัติ<br>ระบบจะแจ้งกลับทาง LINE ของคุณ</p>
+    <button class="btn btn-primary" onclick="closeLiff()">รับทราบ</button>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="config.js"></script>
+  <script>
+    var state = { userId: null, displayName: null, photoBase64: null };
+
+    async function init() {
+      try {
+        await liff.init({ liffId: CONFIG.LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
+
+        var profile = await liff.getProfile();
+        state.userId = profile.userId;
+        state.displayName = profile.displayName;
+        document.getElementById('line-display-name').textContent = 'LINE: ' + profile.displayName;
+
+        showScreen('screen-form');
+
+        document.getElementById('photo-input').addEventListener('change', handlePhoto);
+        document.getElementById('input-name').addEventListener('input', checkReady);
+        document.getElementById('input-phone').addEventListener('input', checkReady);
+        document.getElementById('submit-btn').addEventListener('click', handleSubmit);
+
+      } catch (err) {
+        showError('ไม่สามารถเปิดได้', 'กรุณาเปิดภายในแอป LINE\n(' + err.message + ')');
+      }
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showError(title, msg) {
+      document.getElementById('error-title').textContent = title;
+      document.getElementById('error-msg').textContent = msg;
+      showScreen('screen-error');
+    }
+
+    function checkReady() {
+      var name  = document.getElementById('input-name').value.trim();
+      var phone = document.getElementById('input-phone').value.trim();
+      document.getElementById('submit-btn').disabled = !(name && phone && state.photoBase64);
+    }
+
+    async function handlePhoto(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      try {
+        state.photoBase64 = await compressImage(file, CONFIG.IMAGE_MAX_WIDTH, CONFIG.IMAGE_QUALITY);
+        var preview = document.getElementById('photo-preview');
+        preview.src = 'data:image/jpeg;base64,' + state.photoBase64;
+        preview.style.display = 'block';
+        document.getElementById('photo-placeholder').style.display = 'none';
+        checkReady();
+      } catch (err) { alert('ไม่สามารถโหลดรูปได้'); }
+    }
+
+    function compressImage(file, maxWidth, quality) {
+      return new Promise(function(resolve, reject) {
+        var canvas = document.createElement('canvas');
+        var img = new Image();
+        img.onload = function() {
+          var scale = Math.min(maxWidth / img.width, 1);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', quality).split(',')[1]);
+        };
+        img.onerror = reject;
+        img.src = URL.createObjectURL(file);
+      });
+    }
+
+    async function handleSubmit() {
+      var name  = document.getElementById('input-name').value.trim();
+      var phone = document.getElementById('input-phone').value.trim();
+
+      if (!name || !phone || !state.photoBase64) { alert('กรุณากรอกข้อมูลให้ครบและถ่ายรูป'); return; }
+
+      var btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      document.getElementById('submit-label').textContent = 'กำลังส่ง...';
+
+      try {
+        var res = await fetch(CONFIG.GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'register',
+            userId: state.userId,
+            displayName: state.displayName,
+            name: name,
+            phone: phone,
+            photoBase64: state.photoBase64
+          })
+        });
+
+        var json = await res.json();
+
+        if (json.status === 'ok') {
+          showScreen('screen-success');
+        } else if (json.status === 'already_registered') {
+          document.getElementById('already-msg').textContent = json.message;
+          showScreen('screen-already');
+        } else {
+          alert('❌ ' + (json.message || 'เกิดข้อผิดพลาด'));
+          btn.disabled = false;
+          document.getElementById('submit-label').textContent = 'ส่งคำขอลงทะเบียน';
+        }
+      } catch (err) {
+        alert('ไม่สามารถเชื่อมต่อได้\n' + err.message);
+        btn.disabled = false;
+        document.getElementById('submit-label').textContent = 'ส่งคำขอลงทะเบียน';
+      }
+    }
+
+    function closeLiff() {
+      if (liff.isInClient()) liff.closeWindow();
+      else window.close();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
