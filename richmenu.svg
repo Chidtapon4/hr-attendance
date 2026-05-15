@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2500" height="1686" viewBox="0 0 2500 1686">
+  <defs>
+    <style>
+      .cell-text { font-family: 'Noto Sans Thai', 'Sarabun', Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="2500" height="1686" fill="#1A1A2E"/>
+
+  <!-- ===== Row 1 ===== -->
+
+  <!-- A: เช็คอิน -->
+  <rect x="0" y="0" width="833" height="843" fill="#0D7A3E"/>
+  <rect x="0" y="0" width="833" height="843" fill="url(#gradA)" opacity="0.3"/>
+  <!-- Icon circle -->
+  <circle cx="416" cy="300" r="120" fill="#06C755" opacity="0.25"/>
+  <circle cx="416" cy="300" r="80" fill="#06C755" opacity="0.5"/>
+  <!-- Checkmark icon -->
+  <text x="416" y="330" font-size="120" text-anchor="middle" fill="white">✓</text>
+  <!-- Label -->
+  <text x="416" y="560" font-size="100" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">เช็คอิน</text>
+  <text x="416" y="670" font-size="60" text-anchor="middle" fill="#A8F0C6" class="cell-text">Check In</text>
+  <!-- Top badge -->
+  <rect x="300" y="40" width="233" height="80" rx="40" fill="#06C755"/>
+  <text x="416" y="97" font-size="52" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">A</text>
+
+  <!-- B: เช็คเอาท์ -->
+  <rect x="833" y="0" width="834" height="843" fill="#8B1A1A"/>
+  <!-- Icon circle -->
+  <circle cx="1250" cy="300" r="120" fill="#E53E3E" opacity="0.25"/>
+  <circle cx="1250" cy="300" r="80" fill="#E53E3E" opacity="0.5"/>
+  <!-- Exit icon -->
+  <text x="1250" y="330" font-size="110" text-anchor="middle" fill="white">⏹</text>
+  <!-- Label -->
+  <text x="1250" y="560" font-size="100" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">เช็คเอาท์</text>
+  <text x="1250" y="670" font-size="60" text-anchor="middle" fill="#FFC5C5" class="cell-text">Check Out</text>
+  <!-- Top badge -->
+  <rect x="1134" y="40" width="233" height="80" rx="40" fill="#E53E3E"/>
+  <text x="1250" y="97" font-size="52" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">B</text>
+
+  <!-- C: ลงทะเบียน -->
+  <rect x="1667" y="0" width="833" height="843" fill="#7B4A00"/>
+  <!-- Icon circle -->
+  <circle cx="2083" cy="300" r="120" fill="#F2994A" opacity="0.25"/>
+  <circle cx="2083" cy="300" r="80" fill="#F2994A" opacity="0.5"/>
+  <!-- Clipboard icon -->
+  <text x="2083" y="330" font-size="110" text-anchor="middle" fill="white">📋</text>
+  <!-- Label -->
+  <text x="2083" y="560" font-size="100" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">ลงทะเบียน</text>
+  <text x="2083" y="670" font-size="60" text-anchor="middle" fill="#FFD9A8" class="cell-text">Register</text>
+  <!-- Top badge -->
+  <rect x="1967" y="40" width="233" height="80" rx="40" fill="#F2994A"/>
+  <text x="2083" y="97" font-size="52" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">C</text>
+
+  <!-- ===== Row 2 ===== -->
+
+  <!-- D: ประวัติการเข้างาน -->
+  <rect x="0" y="843" width="833" height="843" fill="#1A3A5C"/>
+  <!-- Icon -->
+  <circle cx="416" cy="1120" r="120" fill="#3182CE" opacity="0.25"/>
+  <circle cx="416" cy="1120" r="80" fill="#3182CE" opacity="0.5"/>
+  <text x="416" y="1150" font-size="110" text-anchor="middle" fill="white">📊</text>
+  <!-- Label -->
+  <text x="416" y="1380" font-size="90" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">ประวัติการเข้างาน</text>
+  <text x="416" y="1480" font-size="55" text-anchor="middle" fill="#90CDF4" class="cell-text">History</text>
+  <!-- Badge -->
+  <rect x="300" y="870" width="233" height="80" rx="40" fill="#3182CE"/>
+  <text x="416" y="927" font-size="52" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">D</text>
+
+  <!-- E: ติดต่อ HR -->
+  <rect x="833" y="843" width="834" height="843" fill="#2D3748"/>
+  <!-- Icon -->
+  <circle cx="1250" cy="1120" r="120" fill="#718096" opacity="0.25"/>
+  <circle cx="1250" cy="1120" r="80" fill="#718096" opacity="0.5"/>
+  <text x="1250" y="1150" font-size="110" text-anchor="middle" fill="white">📞</text>
+  <!-- Label -->
+  <text x="1250" y="1380" font-size="90" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">ติดต่อ HR</text>
+  <text x="1250" y="1480" font-size="55" text-anchor="middle" fill="#CBD5E0" class="cell-text">Contact HR</text>
+  <!-- Badge -->
+  <rect x="1134" y="870" width="233" height="80" rx="40" fill="#718096"/>
+  <text x="1250" y="927" font-size="52" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">E</text>
+
+  <!-- F: วิธีใช้งาน -->
+  <rect x="1667" y="843" width="833" height="843" fill="#1A2744"/>
+  <!-- Icon -->
+  <circle cx="2083" cy="1120" r="120" fill="#4A5568" opacity="0.25"/>
+  <circle cx="2083" cy="1120" r="80" fill="#4A5568" opacity="0.5"/>
+  <text x="2083" y="1150" font-size="110" text-anchor="middle" fill="white">❓</text>
+  <!-- Label -->
+  <text x="2083" y="1380" font-size="90" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">วิธีใช้งาน</text>
+  <text x="2083" y="1480" font-size="55" text-anchor="middle" fill="#CBD5E0" class="cell-text">Help</text>
+  <!-- Badge -->
+  <rect x="1967" y="870" width="233" height="80" rx="40" fill="#4A5568"/>
+  <text x="2083" y="927" font-size="52" font-weight="bold" text-anchor="middle" fill="white" class="cell-text">F</text>
+
+  <!-- Grid lines -->
+  <!-- Vertical -->
+  <line x1="833" y1="0" x2="833" y2="1686" stroke="#FFFFFF" stroke-width="4" opacity="0.15"/>
+  <line x1="1667" y1="0" x2="1667" y2="1686" stroke="#FFFFFF" stroke-width="4" opacity="0.15"/>
+  <!-- Horizontal -->
+  <line x1="0" y1="843" x2="2500" y2="843" stroke="#FFFFFF" stroke-width="4" opacity="0.15"/>
+</svg>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ส่งใบลา</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-size: 13px; color: #718096; font-weight: 600; }
+    .form-input {
+      padding: 12px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+      font-size: 16px; outline: none; transition: border-color 0.2s; background: #fff;
+      width: 100%;
+    }
+    .form-input:focus { border-color: #3182CE; }
+    select.form-input { appearance: none; -webkit-appearance: none; }
+
+    .quota-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    .quota-card {
+      background: #f7fafc; border-radius: 10px; padding: 10px 12px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .quota-type  { font-size: 12px; color: #718096; font-weight: 600; }
+    .quota-num   { font-size: 20px; font-weight: 700; color: #2d3748; }
+    .quota-sub   { font-size: 11px; color: #a0aec0; }
+    .quota-full  { color: #e53e3e !important; }
+
+    .date-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .days-badge {
+      background: #ebf8ff; color: #2b6cb0; padding: 8px 12px;
+      border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center;
+    }
+    .btn-blue { background: #3182CE; color: #fff; }
+    .btn-blue:disabled { opacity: 0.4; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="screen-loading" class="screen active">
+    <div class="spinner" style="border-top-color:#3182CE"></div>
+    <p>กำลังโหลด...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="screen-error" class="screen">
+    <div class="icon">⚠️</div>
+    <h2 id="error-title">เกิดข้อผิดพลาด</h2>
+    <p id="error-msg"></p>
+    <button class="btn btn-secondary" onclick="location.reload()">ลองใหม่</button>
+  </div>
+
+  <!-- Not registered -->
+  <div id="screen-not-reg" class="screen">
+    <div class="icon">📋</div>
+    <h2>ยังไม่ได้ลงทะเบียน</h2>
+    <p>กรุณาลงทะเบียนพนักงานก่อนใช้งาน</p>
+    <button class="btn btn-secondary" onclick="closeLiff()">ปิด</button>
+  </div>
+
+  <!-- Form -->
+  <div id="screen-form" class="screen">
+    <div class="card">
+      <div class="action-icon">📝</div>
+      <h1>ส่งใบลา</h1>
+      <p class="subtitle" id="emp-name"></p>
+
+      <!-- สิทธิ์คงเหลือ -->
+      <div>
+        <p class="form-label" style="margin-bottom:8px">สิทธิ์ลาคงเหลือ</p>
+        <div class="quota-grid" id="quota-grid">
+          <div class="quota-card">
+            <span class="quota-type">ลาป่วย</span>
+            <span class="quota-num" id="q-sick">-</span>
+            <span class="quota-sub">วันที่เหลือ</span>
+          </div>
+          <div class="quota-card">
+            <span class="quota-type">ลากิจ</span>
+            <span class="quota-num" id="q-personal">-</span>
+            <span class="quota-sub">วันที่เหลือ</span>
+          </div>
+          <div class="quota-card">
+            <span class="quota-type">ลาพักร้อน</span>
+            <span class="quota-num" id="q-vacation">-</span>
+            <span class="quota-sub">วันที่เหลือ</span>
+          </div>
+          <div class="quota-card">
+            <span class="quota-type">ลาไม่รับเงิน</span>
+            <span class="quota-num">∞</span>
+            <span class="quota-sub">ไม่จำกัด</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ประเภทการลา -->
+      <div class="form-group">
+        <label class="form-label">ประเภทการลา</label>
+        <select id="sel-type" class="form-input" onchange="onTypeChange()">
+          <option value="">-- เลือกประเภท --</option>
+          <option value="sick">ลาป่วย</option>
+          <option value="personal">ลากิจ (ล่วงหน้าอย่างน้อย 1 วัน)</option>
+          <option value="vacation">ลาพักร้อน (ล่วงหน้าอย่างน้อย 3 วัน)</option>
+          <option value="unpaid">ลาไม่รับเงิน</option>
+        </select>
+      </div>
+
+      <!-- วันที่ -->
+      <div class="date-row">
+        <div class="form-group">
+          <label class="form-label">วันที่เริ่ม</label>
+          <input id="inp-start" class="form-input" type="date" onchange="calcDays()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">วันที่สิ้นสุด</label>
+          <input id="inp-end" class="form-input" type="date" onchange="calcDays()" />
+        </div>
+      </div>
+
+      <!-- จำนวนวัน -->
+      <div id="days-display" class="days-badge" style="display:none">
+        จำนวน: <span id="days-count">0</span> วัน
+      </div>
+
+      <!-- ครึ่งวัน -->
+      <div class="form-group" id="half-day-group" style="display:none">
+        <label class="form-label">ระยะเวลา</label>
+        <select id="sel-half" class="form-input" onchange="calcDays()">
+          <option value="1">เต็มวัน</option>
+          <option value="0.5">ครึ่งวัน</option>
+        </select>
+      </div>
+
+      <!-- เหตุผล -->
+      <div class="form-group">
+        <label class="form-label">เหตุผล</label>
+        <textarea id="inp-reason" class="form-input" rows="3"
+          placeholder="กรอกเหตุผลการลา..." style="resize:none; font-family:inherit"
+          oninput="checkReady()"></textarea>
+      </div>
+
+      <button id="submit-btn" class="btn btn-blue" disabled onclick="handleSubmit()">
+        <span id="submit-label">ส่งใบลา</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Success -->
+  <div id="screen-success" class="screen">
+    <div class="icon success-icon">✅</div>
+    <h2>ส่งใบลาแล้ว!</h2>
+    <p id="success-detail"></p>
+    <p style="font-size:13px; color:#a0aec0">รอ HR ตรวจสอบและอนุมัติ<br>ระบบจะแจ้งกลับทาง LINE</p>
+    <button class="btn btn-secondary" onclick="closeLiff()">รับทราบ</button>
+  </div>
+
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="config.js"></script>
+  <script>
+    var state = { userId: null, balance: null };
+
+    async function init() {
+      try {
+        await liff.init({ liffId: CONFIG.LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login({ redirectUri: window.location.href }); return; }
+
+        var profile = await liff.getProfile();
+        state.userId = profile.userId;
+
+        // ดึง leave balance
+        var res = await fetch(CONFIG.GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'getLeaveBalance', userId: state.userId })
+        });
+        var json = await res.json();
+
+        if (json.status === 'error' && json.message === 'not_registered') {
+          showScreen('screen-not-reg'); return;
+        }
+        if (json.status !== 'ok') {
+          showError('เกิดข้อผิดพลาด', json.message || 'ไม่สามารถโหลดข้อมูลได้');
+          return;
+        }
+
+        state.balance = json.balance;
+        document.getElementById('emp-name').textContent = json.name;
+
+        // แสดงโควต้า
+        ['sick', 'personal', 'vacation'].forEach(function(type) {
+          var b = json.balance[type];
+          var el = document.getElementById('q-' + type);
+          el.textContent = b.remaining;
+          if (b.remaining === 0) el.classList.add('quota-full');
+        });
+
+        // ตั้ง min date = วันนี้
+        var today = new Date().toISOString().split('T')[0];
+        document.getElementById('inp-start').min = today;
+        document.getElementById('inp-end').min = today;
+
+        showScreen('screen-form');
+      } catch (err) {
+        showError('ไม่สามารถเปิดได้', 'กรุณาเปิดภายในแอป LINE\n(' + err.message + ')');
+      }
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+      document.getElementById(id).classList.add('active');
+    }
+
+    function showError(title, msg) {
+      document.getElementById('error-title').textContent = title;
+      document.getElementById('error-msg').textContent = msg;
+      showScreen('screen-error');
+    }
+
+    function onTypeChange() {
+      calcDays();
+      checkReady();
+      // แสดง/ซ่อน ครึ่งวัน เฉพาะตอนวันเดียว
+      var halfGroup = document.getElementById('half-day-group');
+      var start = document.getElementById('inp-start').value;
+      var end   = document.getElementById('inp-end').value;
+      if (start && end && start === end) {
+        halfGroup.style.display = '';
+      } else {
+        halfGroup.style.display = 'none';
+      }
+    }
+
+    function calcDays() {
+      var start = document.getElementById('inp-start').value;
+      var end   = document.getElementById('inp-end').value;
+      var display = document.getElementById('days-display');
+
+      if (!start) return;
+      if (!end || end < start) {
+        document.getElementById('inp-end').value = start;
+        end = start;
+      }
+
+      var startD = new Date(start);
+      var endD   = new Date(end);
+      var diff   = Math.round((endD - startD) / (1000*60*60*24)) + 1;
+
+      var halfGroup = document.getElementById('half-day-group');
+      if (diff === 1) {
+        halfGroup.style.display = '';
+      } else {
+        halfGroup.style.display = 'none';
+        document.getElementById('sel-half').value = '1';
+      }
+
+      var mult = parseFloat(document.getElementById('sel-half').value) || 1;
+      var days = diff * mult;
+
+      document.getElementById('days-count').textContent = days;
+      display.style.display = '';
+      checkReady();
+    }
+
+    function checkReady() {
+      var type   = document.getElementById('sel-type').value;
+      var start  = document.getElementById('inp-start').value;
+      var end    = document.getElementById('inp-end').value;
+      var reason = document.getElementById('inp-reason').value.trim();
+      document.getElementById('submit-btn').disabled = !(type && start && end && reason);
+    }
+
+    async function handleSubmit() {
+      var type   = document.getElementById('sel-type').value;
+      var start  = document.getElementById('inp-start').value;
+      var end    = document.getElementById('inp-end').value;
+      var reason = document.getElementById('inp-reason').value.trim();
+      var mult   = parseFloat(document.getElementById('sel-half').value) || 1;
+      var diff   = Math.round((new Date(end) - new Date(start)) / (1000*60*60*24)) + 1;
+      var days   = diff * mult;
+
+      var btn = document.getElementById('submit-btn');
+      btn.disabled = true;
+      document.getElementById('submit-label').textContent = 'กำลังส่ง...';
+
+      try {
+        var res = await fetch(CONFIG.GAS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            action: 'leave',
+            userId: state.userId,
+            leaveType: type,
+            startDate: start,
+            endDate:   end,
+            days:      days,
+            reason:    reason
+          })
+        });
+        var json = await res.json();
+
+        if (json.status === 'ok') {
+          var typeLabel = {sick:'ลาป่วย', personal:'ลากิจ', vacation:'ลาพักร้อน', unpaid:'ลาไม่รับเงิน'}[type] || type;
+          document.getElementById('success-detail').textContent =
+            typeLabel + '\n' + start + (end !== start ? ' - ' + end : '') + '\nจำนวน ' + days + ' วัน';
+          showScreen('screen-success');
+        } else {
+          alert('❌ ' + (json.message || 'เกิดข้อผิดพลาด'));
+          btn.disabled = false;
+          document.getElementById('submit-label').textContent = 'ส่งใบลา';
+        }
+      } catch (err) {
+        alert('ไม่สามารถเชื่อมต่อได้\n' + err.message);
+        btn.disabled = false;
+        document.getElementById('submit-label').textContent = 'ส่งใบลา';
+      }
+    }
+
+    function closeLiff() {
+      try { liff.closeWindow(); } catch(e) {}
+      setTimeout(function() { try { window.close(); } catch(e) {} }, 300);
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
